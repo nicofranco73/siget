@@ -1,0 +1,262 @@
+/* custom.css - estilos con tema, degradado y ajustes para sidebar + layout */
+:root {
+    --grad-start: #4FB6B1;
+    --grad-end:   #62707A;
+    --bg: #f7f9fb;
+    --card-bg: #ffffff;
+    --muted: #6c757d;
+    --accent: var(--grad-start);
+    --accent-2: var(--grad-end);
+    --radius: 8px;
+    --text: #212529;
+    --muted-contrast: rgba(33,37,41,0.6);
+    --footer-border: rgba(0,0,0,0.06);
+    
+    /* Variables nuevas para el Sidebar */
+    --sidebar-width: 260px;
+}
+
+.theme-dark {
+    --bg: #0f1720;
+    --card-bg: #0b1220;
+    --muted: #9aa4b2;
+    --accent: #4ea8ff;
+    --accent-2: #2b3a52;
+    --text: #e6eef8;
+    --muted-contrast: rgba(230,238,248,0.6);
+    --footer-border: rgba(255,255,255,0.04);
+}
+
+/* Global */
+html, body { 
+    height: 100%; 
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Inter", system-ui, -apple-system;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    transition: background-color .35s ease;
+}
+
+/* ============================================================
+    NUEVA ESTRUCTURA SIDEBAR
+   ============================================================ */
+.wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+    min-height: 100vh;
+}
+
+#sidebar {
+    flex-shrink: 0;
+    min-width: var(--sidebar-width);
+    max-width: var(--sidebar-width);
+    background: linear-gradient(180deg, var(--grad-start) 0%, var(--grad-end) 100%);
+    color: #fff;
+    min-height: 100vh;
+    position: sticky;
+    top: 0;
+    overflow-y: auto;
+}
+
+#sidebar .sidebar-header {
+    padding: 30px 15px; /* Más espacio para que luzca el logo */
+    background: rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+/* AJUSTE LOGO SIDEBAR - Corregido para evitar desbordes */
+.sidebar-logo {
+    width: 95px !important;
+    height: 95px !important;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 6px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 15px auto; /* Centrado y espacio inferior */
+    transition: transform 0.3s ease;
+}
+
+#sidebar .sidebar-header:hover .sidebar-logo {
+    transform: scale(1.05);
+    border-color: #fff;
+}
+
+#sidebar ul.components {
+    padding: 20px 0;
+    list-style: none;
+    margin: 0;
+}
+
+#sidebar ul li a {
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    display: block;
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+#sidebar ul li a:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.1);
+}
+
+#sidebar ul li.active > a {
+    color: #fff;
+    background: rgba(255,255,255,0.2);
+    font-weight: 600;
+}
+
+#sidebar ul li a i {
+    margin-right: 10px;
+    font-size: 1.1rem;
+}
+
+#sidebar hr {
+    border-color: rgba(255,255,255,0.2);
+}
+
+#content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* Header superior ajustado */
+.top-navbar {
+    background: #fff;
+    border-bottom: 1px solid var(--footer-border);
+    flex-shrink: 0;
+}
+
+/* Estilos de cards y botones */
+.card { 
+    border-radius: var(--radius); 
+    background: var(--card-bg); 
+    border: none; 
+}
+
+.shadow-sm { 
+    box-shadow: 0 6px 18px rgba(28,34,46,0.06); 
+}
+
+.btn-accent {
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent-2) 100%);
+    border: none; 
+    color: #fff;
+    transition: opacity 0.2s;
+}
+
+.btn-accent:hover {
+    opacity: 0.9;
+    color: #fff;
+}
+
+/* ============================================================
+    ESTILOS ESPECÍFICOS DE LOGIN (S.I.G.E.T)
+   ============================================================ */
+.login-page { 
+    height: 100vh; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    background: var(--bg);
+}
+
+.login-page .card {
+    width: 100%;
+    max-width: 440px; /* Consistente con el ajuste anterior */
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+    overflow: hidden;
+}
+
+.login-page .card-body {
+    padding: 2.5rem !important;
+}
+
+.login-page .card img {
+    max-width: 130px;
+    margin-bottom: 20px;
+    transition: transform 0.3s ease;
+}
+
+.login-page .card img:hover {
+    transform: scale(1.05);
+}
+
+/* ============================================================
+    ESTILOS ESPECÍFICOS PARA HISTORIA CLÍNICA
+   ============================================================ */
+.italic { font-style: italic; }
+.text-accent { color: var(--grad-start); }
+
+.bg-light.bg-opacity-50 {
+    background-color: rgba(248, 249, 250, 0.5) !important;
+}
+
+.badge.bg-info {
+    background-color: var(--grad-start) !important;
+}
+
+.card.shadow-sm.mb-4 {
+    transition: transform 0.2s ease;
+}
+
+.card.shadow-sm.mb-4:hover {
+    transform: translateY(-2px);
+}
+
+/* Footer */
+footer {
+    padding: 15px 0;
+    border-top: 1px solid var(--footer-border);
+    font-size: 0.85rem;
+    color: var(--muted);
+    flex-shrink: 0;
+}
+
+/* ============================================================
+    RESPONSIVE DESIGN
+   ============================================================ */
+@media (max-width: 991px) {
+    #sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        min-width: 260px;
+        max-width: 260px;
+        height: 100vh;
+        z-index: 999;
+        transform: translateX(-260px);
+        transition: transform 0.3s ease;
+    }
+    
+    #sidebar.show {
+        transform: translateX(0);
+    }
+    
+    #sidebarToggle {
+        display: block !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .login-page .card {
+        max-width: 90%;
+    }
+    .sidebar-logo {
+        width: 60px !important; /* Un poco más chico en tablets */
+        height: 60px !important;
+    }
+}
