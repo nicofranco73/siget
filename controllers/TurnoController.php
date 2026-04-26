@@ -20,7 +20,6 @@ class TurnoController {
         $userId = $_SESSION['usuario_id'];
 
         if ($rol === 'paciente') {
-            // Filtrar turnos para que el paciente solo vea los suyos
             $todos = $this->model->all();
             $turnos = array_filter($todos, function($t) use ($userId) {
                 return $t['paciente_id'] == $userId;
@@ -40,7 +39,6 @@ class TurnoController {
         $error = null;
         $rol = $_SESSION['usuario_rol'] ?? 'paciente';
         
-        // Si es paciente, solo puede crear turno para sí mismo
         if ($rol === 'paciente') {
             $p = $this->pacModel->find($_SESSION['usuario_id']);
             $pacientes = $p ? [$p] : [];
@@ -57,6 +55,14 @@ class TurnoController {
             $rawInicio = $_POST['inicio'] ?? '';
             $inicio = (strpos($rawInicio, 'T') !== false) ? str_replace('T', ' ', $rawInicio) . ':00' : $rawInicio;
 
+            // VALIDACIÓN 1: No permitir fechas pasadas
+            $fechaTurno = strtotime($inicio);
+            $ahora = time();
+
+            if ($fechaTurno < $ahora) {
+                throw new Exception("No se pueden agendar turnos en fechas u horarios pasados.");
+            }
+
             $data = [
                 'paciente_id' => (int)($_POST['paciente_id'] ?? 0),
                 'profesional_id' => (int)($_POST['profesional_id'] ?? 0),
@@ -66,13 +72,25 @@ class TurnoController {
                 'estado' => 'agendado',
             ];
 
+            // VALIDACIÓN 2: El modelo hace el check de solapamiento
             $this->model->create($data);
+
+            // IMPORTANTE: Volvemos a la ruta que SI existe
             header('Location: ?r=turnos&msg=created');
             exit;
+
         } catch (Exception $e) {
             $error = $e->getMessage();
-            $pacientes = $this->pacModel->all();
+            $rol = $_SESSION['usuario_rol'] ?? 'paciente';
+            
+            if ($rol === 'paciente') {
+                $p = $this->pacModel->find($_SESSION['usuario_id']);
+                $pacientes = $p ? [$p] : [];
+            } else {
+                $pacientes = $this->pacModel->all();
+            }
             $profesionales = $this->proModel->all();
+            
             require __DIR__ . '/../views/turnos/form.php';
         }
     }

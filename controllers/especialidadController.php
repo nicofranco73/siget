@@ -10,7 +10,9 @@ class EspecialidadController {
     }
 
     public function index() {
-        $especialidades = $this->modelo->getAllActive();
+        // Usamos la nueva función que cuenta médicos
+        $especialidades = $this->modelo->getAllWithCount();
+        
         $title = "Gestión de Especialidades";
         ob_start(); 
         require_once __DIR__ . '/../views/especialidades/index.php';
@@ -34,7 +36,9 @@ class EspecialidadController {
                     header("Location: index.php?r=especialidades&success=1");
                     exit();
                 } else {
-                    echo "Error al guardar";
+                    // Podrías manejar un error más específico aquí
+                    header("Location: index.php?r=especialidades&error=save_failed");
+                    exit();
                 }
             }
         }

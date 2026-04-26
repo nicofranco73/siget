@@ -1,84 +1,71 @@
 <?php
 // views/pacientes/index.php
-$title = 'Gestión de Pacientes';
+$title = 'Pacientes';
 $userRol = $_SESSION['usuario_rol'] ?? 'paciente';
 ob_start();
 ?>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h1 class="fw-bold text-dark h3 mb-0">Pacientes</h1>
-        <p class="text-muted small">Administración de la base de datos de pacientes</p>
+    <div class="text-success">
+        <h1 class="fw-bold mb-0"><i class="bi bi-people-fill me-2"></i>Gestión de Pacientes</h1>
+        <p class="text-muted mb-0 small">Administración de la base de datos de pacientes</p>
     </div>
-    <?php if ($userRol === 'admin' || $userRol === 'staff'): ?>
-    <a class="btn btn-accent shadow-sm" href="?r=pacientes_create">
-        <i class="bi bi-person-plus-fill me-1"></i> Nuevo Paciente
-    </a>
+    <?php if ($userRol === 'admin'): ?>
+        <a class="btn btn-success btn-lg shadow-sm px-4" href="?r=pacientes_create">
+            <i class="bi bi-person-plus-fill me-1"></i> Nuevo Paciente
+        </a>
     <?php endif; ?>
 </div>
 
-<?php if (!empty($_GET['msg'])): ?>
-    <?php if ($_GET['msg'] === 'created'): ?>
-        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0" role="alert">
-            <i class="bi bi-check-circle-fill me-2"></i> Paciente registrado con éxito.
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    <?php elseif ($_GET['msg'] === 'deleted'): ?>
-        <div class="alert alert-warning alert-dismissible fade show shadow-sm border-0" role="alert">
-            <i class="bi bi-trash-fill me-2"></i> Registro eliminado correctamente.
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    <?php endif; ?>
-<?php endif; ?>
-
-<div class="card border-0 shadow-sm">
+<div class="card shadow-sm border-0 mb-4">
     <div class="card-body p-0">
         <?php if (empty($pacientes)): ?>
             <div class="p-5 text-center">
-                <i class="bi bi-people text-light display-1"></i>
+                <i class="bi bi-person-exclamation display-4 text-muted"></i>
                 <p class="text-muted mt-3">No hay pacientes registrados en el sistema.</p>
             </div>
         <?php else: ?>
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light">
+                    <thead class="bg-light text-dark">
                         <tr>
-                            <th class="ps-4">ID</th>
-                            <th>Paciente</th>
-                            <th>DNI</th>
-                            <th>Contacto</th>
-                            <th class="text-end pe-4">Acciones</th>
+                            <th class="ps-4 py-3 text-uppercase small fw-bold">ID</th>
+                            <th class="py-3 text-uppercase small fw-bold">Paciente</th>
+                            <th class="py-3 text-uppercase small fw-bold text-center">DNI / Documento</th>
+                            <th class="py-3 text-uppercase small fw-bold">Contacto</th>
+                            <th class="text-center py-3 text-uppercase small fw-bold" style="width: 150px;">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                    <?php foreach ($pacientes as $p): ?>
+                    <?php foreach ($pacientes as $pa): ?>
                         <tr>
-                            <td class="ps-4 text-muted small">#<?= $p['id'] ?></td>
+                            <td class="ps-4 text-muted">#<?= $pa['id'] ?></td>
                             <td>
-                                <div class="fw-bold text-dark"><?= htmlspecialchars($p['apellido']) ?>, <?= htmlspecialchars($p['nombre']) ?></div>
+                                <div class="fw-bold text-dark fs-5 text-capitalize"><?= htmlspecialchars($pa['apellido']) ?>, <?= htmlspecialchars($pa['nombre']) ?></div>
+                                <div class="text-muted small">Registrado: <?= date('d/m/Y', strtotime($pa['created_at'] ?? 'now')) ?></div>
                             </td>
-                            <td><span class="badge bg-light text-dark border fw-normal"><?= htmlspecialchars($p['dni']) ?></span></td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                                    <i class="bi bi-card-text me-1"></i>
+                                    <?= htmlspecialchars($pa['dni'] ?? 'Sin DNI') ?>
+                                </span>
+                            </td>
                             <td>
-                                <div class="small"><i class="bi bi-telephone text-muted me-1"></i> <?= htmlspecialchars($p['telefono'] ?? '-') ?></div>
-                                <div class="small text-muted"><i class="bi bi-envelope text-muted me-1"></i> <?= htmlspecialchars($p['email'] ?? '-') ?></div>
+                                <div class="small mb-1 text-dark"><i class="bi bi-telephone me-2 text-muted"></i><?= htmlspecialchars($pa['telefono'] ?? 'S/T') ?></div>
+                                <div class="small text-muted"><i class="bi bi-envelope me-2"></i><?= htmlspecialchars($pa['email'] ?? 'S/E') ?></div>
                             </td>
-                            <td class="text-end pe-4">
-                                <div class="btn-group shadow-sm border rounded">
-                                    <a href="?r=historial&id_paciente=<?= $p['id'] ?>" class="btn btn-sm btn-white text-primary" title="Ver Historial Clínico">
-                                        <i class="bi bi-file-earmark-medical"></i>
+                            <td class="pe-4">
+                                <div class="d-flex justify-content-center gap-1">
+                                    <a href="?r=pacientes_view&id=<?= $pa['id'] ?>" class="btn btn-sm btn-outline-success shadow-sm" title="Ver Ficha">
+                                        <i class="bi bi-file-earmark-person"></i>
                                     </a>
-                                    
-                                    <?php if ($userRol === 'admin' || $userRol === 'staff'): ?>
-                                    <a href="?r=pacientes_edit&id=<?= $p['id'] ?>" class="btn btn-sm btn-white text-warning" title="Editar datos">
+                                    <a href="?r=pacientes_edit&id=<?= $pa['id'] ?>" class="btn btn-sm btn-outline-warning shadow-sm" title="Editar">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
-                                    <?php endif; ?>
-
-                                    <?php if ($userRol === 'admin'): ?>
-                                    <button onclick="confirmarEliminar(<?= $p['id'] ?>)" class="btn btn-sm btn-white text-danger" title="Eliminar paciente">
+                                    <a href="?r=pacientes_delete&id=<?= $pa['id'] ?>" class="btn btn-sm btn-outline-danger shadow-sm" 
+                                       onclick="return confirm('¿Realmente desea eliminar este paciente?')" title="Eliminar">
                                         <i class="bi bi-trash3"></i>
-                                    </button>
-                                    <?php endif; ?>
+                                    </a>
                                 </div>
                             </td>
                         </tr>
@@ -90,19 +77,11 @@ ob_start();
     </div>
 </div>
 
-<div class="mt-4">
-    <a class="btn btn-link text-muted text-decoration-none small p-0" href="?">
-        <i class="bi bi-house-door me-1"></i> Volver al panel principal
+<div class="d-flex justify-content-start">
+    <a class="btn btn-light border shadow-sm px-4" href="?">
+        <i class="bi bi-house-door-fill me-2 text-success"></i>Panel Principal
     </a>
 </div>
-
-<script>
-function confirmarEliminar(id) {
-    if (confirm('¿Está seguro de que desea eliminar este paciente? Esta acción no se puede deshacer.')) {
-        window.location.href = '?r=pacientes_delete&id=' + id;
-    }
-}
-</script>
 
 <?php
 $content = ob_get_clean();
