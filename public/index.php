@@ -1,52 +1,80 @@
 <?php
-// public/index.php - Front controller con autenticación y roles completos
+// public/index.php - Front controller con HELPERS para SIGET
 
 date_default_timezone_set('America/Argentina/Buenos_Aires');
 
-// 1. INICIAR SESIÓN Y MOSTRAR ERRORES
 session_start();
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-// 2. CARGA DE CONFIGURACIÓN Y MODELOS BASE
+// --- FUNCIONES HELPERS (Para que ver.php no de pantalla en blanco) ---
+function h($text) {
+    return htmlspecialchars($text ?? '', ENT_QUOTES, 'UTF-8');
+}
+
+function url($route, $action = null, $params = []) {
+    $url = "?r=" . $route;
+    if ($action) $url .= "_" . $action;
+    if (!empty($params)) {
+        foreach ($params as $key => $val) {
+            $url .= "&$key=$val";
+        }
+    }
+    return $url;
+}
+
+function fecha($fecha) {
+    return $fecha ? date('d/m/Y', strtotime($fecha)) : '—';
+}
+
+function fechaHora($fechahora) {
+    return $fechahora ? date('d/m/Y H:i', strtotime($fechahora)) : '—';
+}
+
+function estadoBadge($estado) {
+    $clases = [
+        'pendiente' => 'bg-warning text-dark',
+        'confirmado' => 'bg-success',
+        'cancelado' => 'bg-danger',
+        'atendido' => 'bg-info'
+    ];
+    $clase = $clases[strtolower($estado)] ?? 'bg-secondary';
+    return '<span class="badge ' . $clase . '">' . ucfirst($estado) . '</span>';
+}
+// --- FIN HELPERS ---
+
 $pdo = require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/BaseModel.php';
 
-// Modelos y Controladores existentes
+// Modelos y Controladores
 require_once __DIR__ . '/../models/Paciente.php';
 require_once __DIR__ . '/../controllers/PacienteController.php';
-
 require_once __DIR__ . '/../models/Profesional.php';
 require_once __DIR__ . '/../controllers/ProfesionalController.php';
-
 require_once __DIR__ . '/../models/Turno.php';
 require_once __DIR__ . '/../controllers/TurnoController.php';
-
 require_once __DIR__ . '/../models/especialidad.php';
 require_once __DIR__ . '/../controllers/especialidadController.php';
 
-// 3. DEFINICIÓN DE RUTAS Y SEGURIDAD
 $rutasPublicas = ['login', 'authenticate', 'logout'];
 $route = $_GET['r'] ?? 'login';
 
-// Validar si el usuario está logueado
 if (!isset($_SESSION['usuario_autenticado']) && !in_array($route, $rutasPublicas)) {
     header('Location: ?r=login');
     exit();
 }
 
-// Redirigir al home si ya está logueado e intenta ir al login
 if (isset($_SESSION['usuario_autenticado']) && $route === 'login') {
     header('Location: ?r=home');
     exit();
 }
 
-// --- BLOQUEO DE SEGURIDAD POR ROL ---
 $userRol = $_SESSION['usuario_rol'] ?? 'paciente';
 
-// Definir rutas que el Paciente NO puede tocar
+// --- RUTAS PROTEGIDAS ---
 $rutasProhibidasPaciente = [
-    'pacientes_create', 'pacientes_store', 'pacientes_delete',
+    'pacientes_create', 'pacientes_store', 'pacientes_delete', 
+    'pacientes_edit', 'pacientes_view', 
     'profesionales', 'profesionales_create', 'profesionales_store',
     'especialidades', 'especialidades_guardar',
     'turnos_agenda_diaria', 'turnos_agenda_semanal'
@@ -56,13 +84,11 @@ if ($userRol === 'paciente' && in_array($route, $rutasProhibidasPaciente)) {
     die("Acceso Denegado: Su rol de Paciente no permite realizar esta acción.");
 }
 
-// Solo el ADMIN puede borrar
 if ($route === 'pacientes_delete' && $userRol !== 'admin') {
     die("Acceso Denegado: Solo el Administrador puede eliminar registros.");
 }
-// ------------------------------------
 
-// 4. PROCESAR AUTENTICACIÓN
+// Lógica de Autenticación
 if ($route === 'authenticate' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = trim($_POST['password'] ?? '');
@@ -99,13 +125,11 @@ if ($route === 'authenticate' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// 5. INSTANCIAR CONTROLADORES ESTÁNDAR
 $pc = new PacienteController();
 $prc = new ProfesionalController();
 $tc = new TurnoController();
 $ec = new EspecialidadController($pdo);
 
-// 6. SWITCH DE ENRUTAMIENTO
 switch ($route) {
     case 'login':
         require __DIR__ . '/../views/login_view.php';
@@ -121,6 +145,12 @@ switch ($route) {
         break;
     case 'pacientes_create':
         $pc->createForm();
+        break;
+    case 'pacientes_edit':
+        $pc->editForm();
+        break;
+    case 'pacientes_view': 
+        $pc->view();
         break;
     case 'pacientes_store':
         $pc->store();
