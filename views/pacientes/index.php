@@ -1,17 +1,17 @@
 <?php
 // views/pacientes/index.php
-$title = 'Pacientes';
 $userRol = $_SESSION['usuario_rol'] ?? 'paciente';
-ob_start();
 ?>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <div class="text-success">
-        <h1 class="fw-bold mb-0"><i class="bi bi-people-fill me-2"></i>Gestión de Pacientes</h1>
+    <div>
+        <h1 class="fw-bold mb-0" style="color: #2d8a6e;">
+            <i class="bi bi-people-fill me-2"></i>Gestión de Pacientes
+        </h1>
         <p class="text-muted mb-0 small">Administración de la base de datos de pacientes</p>
     </div>
-    <?php if ($userRol === 'admin'): ?>
-        <a class="btn btn-success btn-lg shadow-sm px-4" href="?r=pacientes_create">
+    <?php if ($userRol === 'admin' || $userRol === 'admin_it'): ?>
+        <a class="btn btn-success btn-lg shadow-sm px-4" href="?r=pacientes_create" style="background-color: #2d8a6e; border: none;">
             <i class="bi bi-person-plus-fill me-1"></i> Nuevo Paciente
         </a>
     <?php endif; ?>
@@ -76,13 +76,3 @@ ob_start();
         <?php endif; ?>
     </div>
 </div>
-
-<div class="d-flex justify-content-start">
-    <a class="btn btn-light border shadow-sm px-4" href="?">
-        <i class="bi bi-house-door-fill me-2 text-success"></i>Panel Principal
-    </a>
-</div>
-
-<?php
-$content = ob_get_clean();
-require __DIR__ . '/../layout.php';

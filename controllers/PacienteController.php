@@ -18,7 +18,12 @@ class PacienteController {
         } else {
             $pacientes = $this->model->all();
         }
+        
+        // Carga con diseño (Layout)
+        ob_start();
         require __DIR__ . '/../views/pacientes/index.php';
+        $content = ob_get_clean();
+        require __DIR__ . '/../views/layout.php';
     }
 
     public function createForm() {
@@ -26,8 +31,12 @@ class PacienteController {
             die("Acceso denegado.");
         }
         $error = null;
-        $paciente = null;
+        $paciente = null; // Para que el form sepa que es ALTA
+        
+        ob_start();
         require __DIR__ . '/../views/pacientes/form.php';
+        $content = ob_get_clean();
+        require __DIR__ . '/../views/layout.php';
     }
 
     public function editForm() {
@@ -40,7 +49,11 @@ class PacienteController {
         }
         
         $error = null;
+        
+        ob_start();
         require __DIR__ . '/../views/pacientes/form.php';
+        $content = ob_get_clean();
+        require __DIR__ . '/../views/layout.php';
     }
 
     public function store() {
@@ -49,7 +62,7 @@ class PacienteController {
         }
 
         try {
-            $id = $_POST['id'] ?? null;
+            $id = $_POST['id'] ?? null; // Si viene ID, es edición
             $data = [
                 'nombre'    => trim($_POST['nombre'] ?? ''),
                 'apellido'  => trim($_POST['apellido'] ?? ''),
@@ -76,8 +89,12 @@ class PacienteController {
 
         } catch (Exception $e) {
             $error = $e->getMessage();
-            $paciente = $_POST;
+            $paciente = $_POST; // Mantenemos los datos en el form si hay error
+            
+            ob_start();
             require __DIR__ . '/../views/pacientes/form.php';
+            $content = ob_get_clean();
+            require __DIR__ . '/../views/layout.php';
         }
     }
 
@@ -89,17 +106,26 @@ class PacienteController {
             header('Location: ?r=pacientes&msg=not_found');
             exit;
         }
-
-        // Sincronización para la vista ver.php
+        
+        // MODIFICACIÓN: Sincronización para evitar errores en ver.php
         if (!isset($paciente['id_paciente'])) {
             $paciente['id_paciente'] = $paciente['id'];
         }
 
-        // Inicializamos estas variables para que la vista ver.php no tire error
+        // MODIFICACIÓN: Evitar el Warning de fecha_nac que vimos en la captura
+        if (!isset($paciente['fecha_nac'])) {
+            $paciente['fecha_nac'] = null;
+        }
+
+        // Variables obligatorias para los foreach de la vista (Historial y Turnos)
         $historial = []; 
         $turnos = [];
         
+        // MODIFICACIÓN: Envolver en el diseño general (Layout)
+        ob_start();
         require __DIR__ . '/../views/pacientes/ver.php';
+        $content = ob_get_clean();
+        require __DIR__ . '/../views/layout.php';
     }
 
     public function delete() {
