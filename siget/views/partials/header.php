@@ -1,48 +1,55 @@
 <?php
-// views/partials/header.php
-$rol_display = 'Usuario';
-if (isset($_SESSION['usuario_rol'])) {
-    if ($_SESSION['usuario_rol'] === 'admin') $rol_display = 'Administrador IT';
-    if ($_SESSION['usuario_rol'] === 'staff') $rol_display = 'Personal de Salud';
-    if ($_SESSION['usuario_rol'] === 'paciente') $rol_display = 'Paciente';
-}
+// views/partials/header.php - Encabezado superior
+$userName = $_SESSION['usuario_nombre'] ?? 'Usuario';
+$userRol = $_SESSION['usuario_rol'] ?? 'paciente';
+$rolLabel = [
+    'admin' => 'Administrador',
+    'profesional' => 'Profesional',
+    'paciente' => 'Paciente'
+][$userRol] ?? ucfirst($userRol);
 ?>
 
-<header class="top-navbar bg-white py-2 px-3 shadow-sm mb-0">
-    <div class="container-fluid d-flex align-items-center justify-content-between">
-        
-        <div class="d-flex align-items-center gap-2">
-            <button class="btn btn-outline-primary d-lg-none" id="sidebarToggle" title="Menú">
-                <i class="bi bi-list"></i>
+<header class="top-navbar navbar navbar-expand-lg navbar-light bg-white">
+    <div class="container-fluid">
+        <!-- Botón para mostrar/ocultar sidebar en móvil -->
+        <button class="navbar-toggler d-lg-none" type="button" id="sidebarToggle" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Título de la página (opcional) -->
+        <span class="navbar-brand d-lg-none">
+            <i class="bi bi-hospital"></i> SIGET
+        </span>
+
+        <!-- Menú derecho (usuario, notificaciones, tema) -->
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <!-- Notificaciones (icono) -->
+            <button class="btn btn-link position-relative" title="Notificaciones">
+                <i class="bi bi-bell"></i>
+                <!-- <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">2</span> -->
             </button>
-            
-            <h5 class="mb-0 fw-bold text-dark">
-                <?= isset($title) ? htmlspecialchars($title) : 'SIGET - Dashboard' ?>
-            </h5>
-        </div>
 
-        <div class="d-flex align-items-center gap-3">
-            <span class="badge bg-light text-primary border d-none d-md-inline-block">
-                Rol: <?= $rol_display ?>
-            </span>
-
-            <?php if (isset($_SESSION['usuario_autenticado'])): ?>
-                <div class="dropdown">
-                    <button class="btn btn-sm btn-light border dropdown-toggle d-flex align-items-center gap-2" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person-circle fs-5"></i>
-                        <span class="fw-semibold small"><?= htmlspecialchars($_SESSION['usuario_nombre'] ?? $_SESSION['usuario']) ?></span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="userMenu">
-                        <li><span class="dropdown-item-text small text-muted">Conectado como: <strong><?= htmlspecialchars($_SESSION['usuario']) ?></strong></span></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="index.php?r=logout"><i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión</a></li>
-                    </ul>
-                </div>
-            <?php endif; ?>
-
-            <button class="btn btn-outline-secondary btn-sm rounded-circle" type="button" id="themeToggle" title="Cambiar tema">
+            <!-- Toggle de tema (Light/Dark) -->
+            <button class="btn btn-link" id="themeToggle" title="Cambiar tema">
                 <i class="bi bi-moon"></i>
             </button>
+
+            <!-- Dropdown de usuario -->
+            <div class="dropdown">
+                <button class="btn btn-link dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: inherit;">
+                    <div class="user-info text-end d-none d-md-block">
+                        <div class="user-name small fw-semibold"><?= htmlspecialchars($userName) ?></div>
+                        <div class="user-role small text-muted"><?= $rolLabel ?></div>
+                    </div>
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=<?= urlencode($userName) ?>" alt="Avatar" class="rounded-circle" width="36" height="36">
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="?r=profile"><i class="bi bi-person-fill me-2"></i> Mi Perfil</a></li>
+                    <li><a class="dropdown-item" href="?r=settings"><i class="bi bi-gear-fill me-2"></i> Configuración</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="?r=logout"><i class="bi bi-box-arrow-right me-2"></i> Cerrar sesión</a></li>
+                </ul>
+            </div>
         </div>
     </div>
 </header>
